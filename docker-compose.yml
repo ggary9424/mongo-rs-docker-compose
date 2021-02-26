@@ -1,0 +1,67 @@
+version: "3"
+services:
+  mongo1:
+    hostname: mongo1
+    container_name: mongo1
+    image: mongo:4.2-bionic
+    expose:
+      - 27017
+    ports:
+      - 27011:27017
+    restart: always
+    command:
+      [
+        "/usr/bin/mongod",
+        "--bind_ip_all",
+        "--replSet",
+        "rs0",
+        "--enableMajorityReadConcern",
+      ]
+
+  mongo2:
+    hostname: mongo2
+    container_name: mongo2
+    image: mongo:4.2-bionic
+    expose:
+      - 27017
+    ports:
+      - 27017:27017
+    restart: always
+    command:
+      [
+        "/usr/bin/mongod",
+        "--bind_ip_all",
+        "--replSet",
+        "rs0",
+        "--enableMajorityReadConcern",
+      ]
+
+  mongo3:
+    hostname: mongo3
+    container_name: mongo3
+    image: mongo:4.2-bionic
+    expose:
+      - 27017
+    ports:
+      - 27013:27017
+    restart: always
+    command:
+      [
+        "/usr/bin/mongod",
+        "--bind_ip_all",
+        "--replSet",
+        "rs0",
+        "--enableMajorityReadConcern",
+      ]
+
+  mongo-rs-setup:
+    image: mongo:4.2-bionic
+    container_name: mongo-rs-setup
+    volumes:
+      - ./mongo-scripts:/scripts
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    restart: on-failure
+    entrypoint: ["bash", "/scripts/mongo_rs_setup.sh"]
